@@ -5,9 +5,9 @@
 .vscode/ipch
 .DS_Store
 .vscode/
-# Ignore everything in .pio
+
+# Ignore everything in .pio except firmware.bin
 .pio/*
-
-# But do not ignore firmware.bin
+!.pio/build/
+!.pio/build/**/
 !.pio/build/**/firmware.bin
-
