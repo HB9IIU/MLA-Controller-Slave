@@ -110,7 +110,6 @@ void setup()
     // Initialize preferences
     preferences.begin("HB9IIUmla", false); // 'HB9IIUmla' is the storage group name
     currentStepperPosition = preferences.getLong("currentPos", 0);
-
     // Display memory usage after loading preferences
     Serial.print("Free Heap after loading preferences: ");
     Serial.println(formatNumberWithSeparator(ESP.getFreeHeap()));
