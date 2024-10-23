@@ -23,9 +23,9 @@ unsigned long estimated_duration = 0;
 
 // Global constants (Checked)
 const unsigned int MIN_ACCEL_STEPS = 10000;   // Minimum steps for acceleration and deceleration
-const unsigned int FINAL_DELAY = 25;         // Minimum delay for max speed
-const unsigned int INITIAL_DELAY = 200;      // Maximum delay for initial speed (slow)
-const long BACKLASH_CORRECTION_STEPS =22000; // Example value, adjust as needed
+const unsigned int FINAL_DELAY = 25;          // Minimum delay for max speed
+const unsigned int INITIAL_DELAY = 200;       // Maximum delay for initial speed (slow)
+const long BACKLASH_CORRECTION_STEPS = 22000; // Example value, adjust as needed
 
 /////////////////////////////////////////////////////////////////////
 
@@ -65,15 +65,22 @@ void setup()
 {
     Serial.begin(115200);
     Serial.println("\nHB9IIU MLA SLAVE Controller Started");
-
+    // Print chip model
+    esp_chip_info_t chip_info;
+    esp_chip_info(&chip_info);
+    Serial.printf("Chip model: %s\n", (chip_info.model == CHIP_ESP32) ? "ESP32" : "Unknown");
+    // Print number of cores
+    Serial.printf("Number of cores: %d\n", chip_info.cores);
+    // Print chip revision
+    Serial.printf("Chip revision: %d\n", chip_info.revision);
+    // Print flash size
+    Serial.printf("Flash size: %dMB\n", spi_flash_get_chip_size() / (1024 * 1024));
     // Display initial memory usage
     Serial.print("Initial Free Heap: ");
     Serial.println(formatNumberWithSeparator(ESP.getFreeHeap()));
-
     // For ESP32, you might also use:
     Serial.print("Max Allocatable Heap: ");
     Serial.println(formatNumberWithSeparator(ESP.getMaxAllocHeap()));
-
     // Initialize SPIFFS
     if (!SPIFFS.begin(true))
     {
@@ -95,7 +102,7 @@ void setup()
     {
         Serial.println("Table could not be loaded");
     }
-    ///printLookupTable();
+    /// printLookupTable();
     //   Display memory usage after loading the lookup table
     Serial.print("Free Heap after loading lookup table: ");
     Serial.println(formatNumberWithSeparator(ESP.getFreeHeap()));
@@ -362,7 +369,7 @@ void handleStepperMovement()
         return;
     Serial.print("\nSTEPPER MOVEMENT: ");
     Serial.print("New Target Position: ");
-    //digitalWrite(DRM542_EN_Pin, LOW); // Enable the stepper driver
+    // digitalWrite(DRM542_EN_Pin, LOW); // Enable the stepper driver
 
     Serial.println(formatNumberWithSeparator(targetStepperPosition));
 
@@ -406,7 +413,7 @@ void handleStepperMovement()
 
     // Movement completed, update state
     moving = false;
-    //digitalWrite(DRM542_EN_Pin, HIGH); // Disable the stepper driver
+    // digitalWrite(DRM542_EN_Pin, HIGH); // Disable the stepper driver
 
     preferences.putLong("currentPos", currentStepperPosition); // Save the new position to non-volatile memory
     Serial.print("Target position reached. New Position saved to volatile memory: ");
@@ -485,9 +492,10 @@ unsigned long estimateTotalMovementDuration(long targetPosition)
 {
     // Calculate total steps including backlash compensation if moving backward
     long stepsToGo = abs(targetPosition - currentStepperPosition);
-    if (stepsToGo==0){
+    if (stepsToGo == 0)
+    {
         return 0;
- }
+    }
     if (targetPosition > currentStepperPosition)
     {
         // Add 5% margin to the estimated duration by multiplying by 1.05
@@ -705,7 +713,6 @@ bool loadLookupTable()
     }
 
     tableSize = index / 2; // Number of entries
-        
 
     file.close();
 
